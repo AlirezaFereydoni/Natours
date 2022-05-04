@@ -1,16 +1,19 @@
-const express = require("express");
-const fs = require("fs");
+const express = require('express');
+const fs = require('fs');
+const morgan = require('morgan');
 
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`));
 
 const app = express();
+
+app.use(morgan('dev'));
 
 app.use(express.json());
 
 // Get all tours
 const getAllTour = (req, res) => {
   res.status(200).json({
-    status: "success",
+    status: 'success',
     results: tours.length,
     data: {
       tours,
@@ -24,11 +27,11 @@ const getSpecificTour = (req, res) => {
   const specificTour = tours.find(tour => tour.id === Number(id));
 
   if (!specificTour) {
-    res.status(404).json({ status: "fail", message: "not found" });
+    res.status(404).json({ status: 'fail', message: 'not found' });
   }
 
   res.status(200).json({
-    status: "success",
+    status: 'success',
     data: specificTour,
   });
 };
@@ -42,11 +45,11 @@ const createTour = (req, res) => {
 
   fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`, JSON.stringify(tours), err => {
     if (err) {
-      res.status(400).json({ status: "Fail", message: "Bad Request", data: {} });
+      res.status(400).json({ status: 'Fail', message: 'Bad Request', data: {} });
     }
 
     res.status(200).json({
-      status: "Success",
+      status: 'Success',
       data: newTour,
     });
   });
@@ -62,11 +65,11 @@ const updateTour = (req, res) => {
     JSON.stringify(updatedTours),
     err => {
       if (err) {
-        res.status(500).json({ status: "Fail", message: "something goes wrong..." });
+        res.status(500).json({ status: 'Fail', message: 'something goes wrong...' });
       }
 
       res.status(200).json({
-        status: "Success",
+        status: 'Success',
         data: {},
       });
     }
@@ -84,18 +87,60 @@ const deleteTour = (req, res) => {
     JSON.stringify(updatedTours),
     err => {
       if (err) {
-        res.status(500).json({ status: "Fail", message: "something goes wrong" });
+        res.status(500).json({ status: 'Fail', message: 'something goes wrong' });
       }
 
-      res.status(204).json({ status: "Success", data: null });
+      res.status(204).json({ status: 'Success', data: null });
     }
   );
 };
 
-app.route("/api/tours").get(getAllTour).post(createTour);
+const getAllUsers = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'Something goes wrong',
+  });
+};
 
-app.route("/api/tours/:id").get(getSpecificTour).put(updateTour).delete(deleteTour);
+const getUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'Something goes wrong',
+  });
+};
 
-app.listen(8000, "127.0.0.1", () => {
-  console.log("Server running ...");
+const createUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'Something goes wrong',
+  });
+};
+
+const updateUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'Something goes wrong',
+  });
+};
+
+const deleteUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'Something goes wrong',
+  });
+};
+
+// Routes
+
+app.route('/api/tours').get(getAllTour).post(createTour);
+app.route('/api/tours/:id').get(getSpecificTour).put(updateTour).delete(deleteTour);
+
+// Users
+app.route('/api/users').get(getAllUsers).post(createUser);
+app.route('/api/users/:id').get(getUser).patch(updateUser).delete(deleteUser);
+
+// Server
+
+app.listen(8000, '127.0.0.1', () => {
+  console.log('Server running ...');
 });
