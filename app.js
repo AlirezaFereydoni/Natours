@@ -1,8 +1,8 @@
 const express = require('express');
 
 const morgan = require('morgan');
-const tourRouter = require('./router/tourRouter');
-const userRouter = require('./router/userRouter');
+const tourRoutes = require('./routes/tourRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 
@@ -11,11 +11,7 @@ app.use(morgan('dev'));
 app.use(express.json());
 
 // Routes
-app.use('/api/tours', tourRouter);
-app.use('/api/users', userRouter);
+app.use('/api/tours', tourRoutes);
+app.use('/api/users', userRoutes);
 
-// Server
-
-app.listen(8000, '127.0.0.1', () => {
-  console.log('Server running ...');
-});
+module.exports = app;
