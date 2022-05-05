@@ -1,3 +1,22 @@
+const fs = require('fs');
+const tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`));
+
+exports.checkId = (req, res, next, val) => {
+  if (!req.params.id) {
+    return res.status(404).json({ status: 'fail', message: 'not found' });
+  }
+
+  next();
+};
+
+exports.checkRequirements = (req, res, next) => {
+  if (!req.body.name || !req.body.price) {
+    return res.status(400).json({ status: 'fail', message: 'Missing name or price' });
+  }
+
+  next();
+};
+
 // Get all tours
 exports.getAllTour = (req, res) => {
   res.status(200).json({
@@ -13,10 +32,6 @@ exports.getAllTour = (req, res) => {
 exports.getSpecificTour = (req, res) => {
   const { id } = req.params;
   const specificTour = tours.find(tour => tour.id === Number(id));
-
-  if (!specificTour) {
-    res.status(404).json({ status: 'fail', message: 'not found' });
-  }
 
   res.status(200).json({
     status: 'success',
