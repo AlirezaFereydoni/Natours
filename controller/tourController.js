@@ -1,8 +1,8 @@
 const fs = require('fs');
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`));
 
-exports.checkId = (req, res, next, val) => {
-  if (!req.params.id) {
+exports.checkId = (req, res, next) => {
+  if (!req.params.id && tours.find(item => item.id === Number(req.params.id))) {
     return res.status(404).json({ status: 'fail', message: 'not found' });
   }
 
@@ -60,43 +60,40 @@ exports.createTour = (req, res) => {
 
 // Update tour with PUT
 exports.updateTour = (req, res) => {
-  const { params, body } = req;
+  const { id } = req.params;
+  const updatedTours = tours.map(tour => (tour.id === Number(id) ? req.body : tour));
 
-  const tourIndex = tours.findIndex(item => item.id === Number(params.id));
+  fs.writeFile(
+    `${__dirname}/dev-data/data/tours-simple.json`,
+    JSON.stringify(updatedTours),
+    err => {
+      if (err) {
+        res.status(500).json({ status: 'Fail', message: 'something goes wrong...' });
+      }
 
-  if (tourIndex === -1) {
-    res.status(404).json({ status: 'not found', message: "tour wasn't found" });
-  }
-
-  tours.splice(tourIndex, 1, { id: tours[tourIndex].id, ...body });
-
-  fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`, JSON.stringify(tours), err => {
-    if (err) {
-      res.status(500).json({ status: 'failed', message: 'something is wrong' });
+      res.status(200).json({
+        status: 'Success',
+        data: {},
+      });
     }
-
-    res.status(200).json({ status: 'success', data: tours[tourIndex] });
-  });
+  );
 };
 
 // Delete a tour
 exports.deleteTour = (req, res) => {
   const { id } = req.params;
-  const tourIndex = tours.findIndex(item => item.id === Number(id));
 
-  if (tourIndex === -1) {
-    res.status(404).json({ status: 'not found', message: "tour wasn't found" });
-  }
+  const updatedTours = tours.filter(tour => tour.id !== Number(id));
 
-  tours.splice(tourIndex, 1);
+  fs.writeFile(
+    `${__dirname}/dev-data/data/tours-simple.json`,
+    JSON.stringify(updatedTours),
+    err => {
+      if (err) {
+        res.status(500).json({ status: 'Fail', message: 'something goes wrong' });
+      }
 
-  fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`, JSON.stringify(tours), err => {
-    if (err) {
-      res
-        .status(500)
-        .json({ status: 'failed', message: 'there is a problem here please try again later' });
+      res.status(204).json({ status: 'Success', data: null });
     }
-
-    res.status(200).json({ status: 'success' });
-  });
+  );
 };
