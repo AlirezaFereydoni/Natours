@@ -14,6 +14,10 @@ const tourSchema = new mongoose.Schema({
     type: Number,
     default: 4.5,
   },
+  difficulty: {
+    type: String,
+    required: false,
+  },
   available: {
     type: Boolean,
     default: true,
