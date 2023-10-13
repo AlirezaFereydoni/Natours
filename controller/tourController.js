@@ -46,8 +46,24 @@ exports.createTour = async (req, res) => {
   }
 };
 
-// Update tour with PUT
-exports.updateTour = (req, res) => {};
+// Update tour with PATCH
+exports.updateTour = async (req, res) => {
+  try {
+    const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour: updatedTour,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({ status: 'fail', message: err });
+  }
+};
 
 // Delete a tour
 exports.deleteTour = (req, res) => {};
