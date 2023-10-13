@@ -60,40 +60,43 @@ exports.createTour = (req, res) => {
 
 // Update tour with PUT
 exports.updateTour = (req, res) => {
-  const { id } = req.params;
-  const updatedTours = tours.map(tour => (tour.id === Number(id) ? req.body : tour));
+  const { params, body } = req;
 
-  fs.writeFile(
-    `${__dirname}/dev-data/data/tours-simple.json`,
-    JSON.stringify(updatedTours),
-    err => {
-      if (err) {
-        res.status(500).json({ status: 'Fail', message: 'something goes wrong...' });
-      }
+  const tourIndex = tours.findIndex(item => item.id === Number(params.id));
 
-      res.status(200).json({
-        status: 'Success',
-        data: {},
-      });
+  if (tourIndex === -1) {
+    res.status(404).json({ status: 'not found', message: "tour wasn't found" });
+  }
+
+  tours.splice(tourIndex, 1, { id: tours[tourIndex].id, ...body });
+
+  fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`, JSON.stringify(tours), err => {
+    if (err) {
+      res.status(500).json({ status: 'failed', message: 'something is wrong' });
     }
-  );
+
+    res.status(200).json({ status: 'success', data: tours[tourIndex] });
+  });
 };
 
 // Delete a tour
 exports.deleteTour = (req, res) => {
   const { id } = req.params;
+  const tourIndex = tours.findIndex(item => item.id === Number(id));
 
-  const updatedTours = tours.filter(tour => tour.id !== Number(id));
+  if (tourIndex === -1) {
+    res.status(404).json({ status: 'not found', message: "tour wasn't found" });
+  }
 
-  fs.writeFile(
-    `${__dirname}/dev-data/data/tours-simple.json`,
-    JSON.stringify(updatedTours),
-    err => {
-      if (err) {
-        res.status(500).json({ status: 'Fail', message: 'something goes wrong' });
-      }
+  tours.splice(tourIndex, 1);
 
-      res.status(204).json({ status: 'Success', data: null });
+  fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`, JSON.stringify(tours), err => {
+    if (err) {
+      res
+        .status(500)
+        .json({ status: 'failed', message: 'there is a problem here please try again later' });
     }
-  );
+
+    res.status(200).json({ status: 'success' });
+  });
 };
