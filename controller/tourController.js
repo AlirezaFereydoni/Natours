@@ -21,6 +21,22 @@ exports.getAllTour = async (req, res) => {
       query.sort('-createdAt');
     }
 
+    if (req.query.fields) {
+      const fields = req.query.fields.split(',').join(' ');
+      query.select(fields);
+    } else {
+      query.select('-__v');
+    }
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 10;
+    const skip = (page - 1) * limit;
+    if (req.query.page) {
+      const numTours = await Tour.countDocuments();
+      if (skip >= numTours) throw new Error('Page does not exist');
+    }
+
+    query.skip(skip).limit(limit);
+
     const tours = await query;
 
     res.status(200).json({
