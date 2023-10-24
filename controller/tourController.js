@@ -1,49 +1,27 @@
 const Tour = require('../models/tour.model');
+const { filters, sort } = require('../utils/apiFeatures');
+
+const getFiveCheapMiddleware = (req, res, next) => {
+  req.query.limit = '5';
+  req.query.sort = '-duration,price';
+  req.query.fields = 'name,price,duration,ratingAverage,difficulty';
+
+  next();
+};
 
 // Get all tours
-exports.getAllTour = async (req, res) => {
+const getAllTour = async (req, res) => {
   try {
-    const queries = { ...req.query };
-    const excludedQueries = ['page', 'sort', 'limit', 'fields'];
+    const features = filters(req.query, Tour);
+    const sorted = sort(req.query, features);
 
-    excludedQueries.forEach((el) => delete queries[el]);
-
-    let queryStr = JSON.stringify(queries);
-
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-
-    const query = Tour.find(JSON.parse(queryStr));
-
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(',').join(' ');
-      query.sort(sortBy);
-    } else {
-      query.sort('-createdAt');
-    }
-
-    if (req.query.fields) {
-      const fields = req.query.fields.split(',').join(' ');
-      query.select(fields);
-    } else {
-      query.select('-__v');
-    }
-    const page = req.query.page || 1;
-    const limit = req.query.limit || 10;
-    const skip = (page - 1) * limit;
-    if (req.query.page) {
-      const numTours = await Tour.countDocuments();
-      if (skip >= numTours) throw new Error('Page does not exist');
-    }
-
-    query.skip(skip).limit(limit);
-
-    const tours = await query;
+    const tours = await sorted;
 
     res.status(200).json({
       status: 'success',
       results: tours.length,
       data: {
-        tours,
+        tours: tours,
       },
     });
   } catch (err) {
@@ -52,7 +30,7 @@ exports.getAllTour = async (req, res) => {
 };
 
 // Get specific tour
-exports.getSpecificTour = async (req, res) => {
+const getSpecificTour = async (req, res) => {
   try {
     const specificTour = await Tour.findById(req.params.id);
 
@@ -63,7 +41,7 @@ exports.getSpecificTour = async (req, res) => {
 };
 
 // Create a new tour
-exports.createTour = async (req, res) => {
+const createTour = async (req, res) => {
   try {
     const newTour = await Tour.create(req.body);
 
@@ -82,7 +60,7 @@ exports.createTour = async (req, res) => {
 };
 
 // Update tour with PATCH
-exports.updateTour = async (req, res) => {
+const updateTour = async (req, res) => {
   try {
     const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -101,7 +79,7 @@ exports.updateTour = async (req, res) => {
 };
 
 // Delete a tour
-exports.deleteTour = async (req, res) => {
+const deleteTour = async (req, res) => {
   try {
     await Tour.findByIdAndDelete(req.params.id);
     res
@@ -110,4 +88,13 @@ exports.deleteTour = async (req, res) => {
   } catch (err) {
     res.status(400).json({ status: 'fail', message: err });
   }
+};
+
+module.exports = {
+  deleteTour,
+  updateTour,
+  createTour,
+  getSpecificTour,
+  getAllTour,
+  getFiveCheapMiddleware,
 };
