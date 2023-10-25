@@ -5,6 +5,8 @@ const tourController = require('../controller/tourController');
 
 // Routes
 
+router.route('/stats').get(tourController.getTourStats);
+
 router
   .route('/get-5-cheap')
   .get(tourController.getFiveCheapMiddleware, tourController.getAllTour);
