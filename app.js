@@ -16,4 +16,11 @@ app.use(express.static(`${__dirname}/public`));
 app.use('/api/tours', tourRoutes);
 app.use('/api/users', userRoutes);
 
+app.all('*', (req, res, next) => {
+  res.status(404).json({
+    status: 'fail',
+    message: "The requested url isn't exist",
+  });
+});
+
 module.exports = app;
