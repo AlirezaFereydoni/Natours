@@ -6,6 +6,7 @@ const tourController = require('../controller/tourController');
 // Routes
 
 router.route('/stats').get(tourController.getTourStats);
+router.route('/monthly-plan/:year').get(tourController.getMonthlyPlan);
 
 router
   .route('/get-5-cheap')
