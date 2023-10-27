@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const errorHandler = require('./utils/errorHandler');
 const tourRoutes = require('./routes/tourRoutes');
 const userRoutes = require('./routes/userRoutes');
 
@@ -17,10 +18,14 @@ app.use('/api/tours', tourRoutes);
 app.use('/api/users', userRoutes);
 
 app.all('*', (req, res, next) => {
-  res.status(404).json({
-    status: 'fail',
-    message: "The requested url isn't exist",
-  });
+  errorHandler(404, "The requested url isn't exist");
+});
+
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const status = err.status || 'Error';
+
+  res.status(statusCode).json({ status, message: err.message });
 });
 
 module.exports = app;
