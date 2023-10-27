@@ -1,4 +1,4 @@
-const Tour = require('../models/tour.model');
+const Tour = require('../models/tourModel');
 const { filters, sort } = require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
 const createResponse = require('../utils/createResponse');
