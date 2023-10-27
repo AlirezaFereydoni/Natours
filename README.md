@@ -1,3 +1,3 @@
 # Natours
 
-### Simple project for practicing Nodejs, Express and MongoDB
+### CRUD project for practicing Nodejs, Express and MongoDB
