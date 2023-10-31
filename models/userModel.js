@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { isEmail } = require('validator');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -28,7 +29,25 @@ const userSchema = new mongoose.Schema({
     trim: true,
     min: [8, 'your password should at least 8 characters'],
     max: [64, 'your password should at least 64 characters'],
+    validate: {
+      validator: function (el) {
+        return this.password === el;
+      },
+      message: 'password confirm is not the same as password',
+    },
   },
+});
+
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password')) return next();
+
+  bcrypt.hash(this.password, 12, (err, hash) => {
+    this.password = hash;
+  });
+
+  this.passwordConfirm = undefined;
+
+  next();
 });
 
 const User = mongoose.model('User', userSchema);
