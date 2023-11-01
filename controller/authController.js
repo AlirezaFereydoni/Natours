@@ -29,7 +29,7 @@ const login = catchAsync(async (req, res, next) => {
     return errorHandler(400, 'Provide email and password');
 
   const user = await User.findOne({ email }).select('+password');
-  console.log({ password, userPass: user.password });
+
   if (!user || !(await user.isPasswordCorrect(password, user.password)))
     return errorHandler(401, 'Your email or password is Invalid');
 
