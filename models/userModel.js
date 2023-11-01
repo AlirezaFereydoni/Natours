@@ -23,6 +23,7 @@ const userSchema = new mongoose.Schema({
     trim: true,
     min: [8, 'your password should at least 8 characters'],
     max: [64, 'your password should at least 64 characters'],
+    select: false,
   },
   passwordConfirm: {
     type: String,
@@ -38,17 +39,18 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-userSchema.pre('save', function (next) {
+userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
 
-  bcrypt.hash(this.password, 12, (err, hash) => {
-    this.password = hash;
-  });
+  this.password = await bcrypt.hash(this.password, 12);
 
   this.passwordConfirm = undefined;
 
   next();
 });
+
+userSchema.methods.isPasswordCorrect = async (inputPassword, userPassword) =>
+  await bcrypt.compare(inputPassword, userPassword);
 
 const User = mongoose.model('User', userSchema);
 
