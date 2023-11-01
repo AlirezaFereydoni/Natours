@@ -1,6 +1,7 @@
-const createResponse = (res, statusCode, result) => {
+const createResponse = (res, statusCode, result, others) => {
   res.status(statusCode).json({
     status: 'success',
+    ...others,
     data: {
       result,
     },
