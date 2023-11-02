@@ -15,6 +15,7 @@ const signup = catchAsync(async (req, res, next) => {
     email: req.body.email,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
+    role: req.body.role,
   });
 
   const token = createToken(newUser._id);
@@ -48,19 +49,32 @@ const protected = catchAsync(async (req, res, next) => {
 
   const decoded = JWT.verify(token, process.env.JWT_SECRET);
 
-  const user = await User.findById(decoded.id);
+  const currentUser = await User.findById(decoded.id);
 
-  if (!user)
+  if (!currentUser)
     return next(errorHandler(401, 'Your token is Invalid, Please login again'));
 
   if (!token || !decoded)
     return next(errorHandler(401, 'You are not authorized'));
 
+  req.user = currentUser;
   next();
 });
+
+const restrictTo =
+  (...roles) =>
+  (req, res, next) => {
+    if (!roles.includes(req.user.role))
+      return next(
+        errorHandler(403, 'This user does not have permission to this action'),
+      );
+
+    next();
+  };
 
 module.exports = {
   signup,
   login,
   protected,
+  restrictTo,
 };
