@@ -38,7 +38,29 @@ const login = catchAsync(async (req, res, next) => {
   createResponse(res, 200, token);
 });
 
+const protected = catchAsync(async (req, res, next) => {
+  const { authorization } = req.headers;
+
+  if (!authorization || !authorization.startsWith('Bearer'))
+    return next(errorHandler(401, 'You are not authorized'));
+
+  const token = authorization.split(' ')[1];
+
+  const decoded = JWT.verify(token, process.env.JWT_SECRET);
+
+  const user = await User.findById(decoded.id);
+
+  if (!user)
+    return next(errorHandler(401, 'Your token is Invalid, Please login again'));
+
+  if (!token || !decoded)
+    return next(errorHandler(401, 'You are not authorized'));
+
+  next();
+});
+
 module.exports = {
   signup,
   login,
+  protected,
 };
