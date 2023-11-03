@@ -2,40 +2,30 @@ const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const createResponse = require('../utils/createResponse');
 
-exports.getAllUsers = catchAsync(async (req, res, next) => {
+const getAllUsers = catchAsync(async (req, res, next) => {
   const users = await User.find();
 
   createResponse(res, 200, users);
 });
 
-// Get Specific User
-exports.getUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'Something goes wrong',
-  });
-};
+const updateMe = catchAsync(async (req, res, next) => {
+  const { email, name } = req.body;
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      email,
+      name,
+    },
+    { new: true, runValidators: true },
+  );
 
-// Create User
-exports.createUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'Something goes wrong',
-  });
-};
+  createResponse(res, 200, updatedUser);
+});
 
-// Update User
-exports.updateUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'Something goes wrong',
-  });
-};
 
-// Delete User
-exports.deleteUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'Something goes wrong',
-  });
+
+
+module.exports = {
+  getAllUsers,
+  updateMe,
 };
