@@ -1,4 +1,5 @@
 const JWT = require('jsonwebtoken');
+const crypto = require('crypto');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const createResponse = require('../utils/createResponse');
@@ -87,7 +88,7 @@ const forgotPassword = catchAsync(async (req, res, next) => {
   )}/api/users/resetPassword/${resetToken}`;
 
   const message = `Reset your password by clicking on this url: \n ${resetURL} \n if you don't want to reset password please ignore this email.`;
-  console.log(resetURL);
+
   try {
     await emailSender({
       email: user.email,
@@ -97,7 +98,6 @@ const forgotPassword = catchAsync(async (req, res, next) => {
 
     createResponse(res, 200, 'Your reset password link sent to your email');
   } catch (err) {
-    console.log(err);
     user.passwordResetToken = undefined;
     user.passwordResetExpire = undefined;
     await user.save({ validateBeforeSave: false });
@@ -105,7 +105,28 @@ const forgotPassword = catchAsync(async (req, res, next) => {
   }
 });
 
-const resetPassword = catchAsync(async (req, res, next) => {});
+const resetPassword = catchAsync(async (req, res, next) => {
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(req.params.resetToken)
+    .digest('hex');
+
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpire: { $gt: Date.now() },
+  });
+
+  if (!user) return next(errorHandler(403, 'Your link has expired or Invalid'));
+
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpire = undefined;
+  await user.save();
+
+  const token = createToken(user._id);
+  createResponse(res, 200, token);
+});
 
 module.exports = {
   signup,
