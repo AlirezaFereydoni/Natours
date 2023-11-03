@@ -22,10 +22,13 @@ const updateMe = catchAsync(async (req, res, next) => {
   createResponse(res, 200, updatedUser);
 });
 
-
-
+const deActiveMe = catchAsync(async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user._id, { isActive: false });
+  createResponse(res, 200, 'Successfully deactivated');
+});
 
 module.exports = {
   getAllUsers,
   updateMe,
+  deActiveMe,
 };
