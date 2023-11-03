@@ -3,6 +3,7 @@ const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const createResponse = require('../utils/createResponse');
 const errorHandler = require('../utils/errorHandler');
+const emailSender = require('../utils/email');
 
 const createToken = (id) =>
   JWT.sign({ id }, process.env.JWT_SECRET, {
@@ -72,9 +73,45 @@ const restrictTo =
     next();
   };
 
+const forgotPassword = catchAsync(async (req, res, next) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user) return next(errorHandler(404, 'This user does not find'));
+
+  const resetToken = user.createResetToken();
+  await user.save({ validateBeforeSave: false });
+
+  const resetURL = `${req.protocol}://${req.get(
+    'host',
+  )}/api/users/resetPassword/${resetToken}`;
+
+  const message = `Reset your password by clicking on this url: \n ${resetURL} \n if you don't want to reset password please ignore this email.`;
+  console.log(resetURL);
+  try {
+    await emailSender({
+      email: user.email,
+      subject: 'Reset Password URL',
+      message: message,
+    });
+
+    createResponse(res, 200, 'Your reset password link sent to your email');
+  } catch (err) {
+    console.log(err);
+    user.passwordResetToken = undefined;
+    user.passwordResetExpire = undefined;
+    await user.save({ validateBeforeSave: false });
+    next(errorHandler(500, 'There was an error to sending email'));
+  }
+});
+
+const resetPassword = catchAsync(async (req, res, next) => {});
+
 module.exports = {
   signup,
   login,
   protected,
   restrictTo,
+  forgotPassword,
+  resetPassword,
 };
