@@ -11,6 +11,21 @@ const createToken = (id) =>
     expiresIn: process.env.JWT_EXPIRE_IN,
   });
 
+const setTokenCookie = (id, res) => {
+  const token = createToken(id);
+  const cookieOption = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    expires: new Date(
+      Date.now() + process.env.COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
+    ),
+  };
+
+  res.cookie('jwt', token, cookieOption);
+
+  return token;
+};
+
 const signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
@@ -20,7 +35,7 @@ const signup = catchAsync(async (req, res, next) => {
     role: req.body.role,
   });
 
-  const token = createToken(newUser._id);
+  const token = setTokenCookie(newUser._id, res);
 
   createResponse(res, 201, { newUser, token });
 });
