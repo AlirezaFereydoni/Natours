@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const rateLimiter = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
+const hpp = require('hpp');
 
 const errorHandler = require('./utils/errorHandler');
 const tourRoutes = require('./routes/tourRoutes');
@@ -28,6 +29,8 @@ app.use(mongoSanitize());
 
 // Prevent XSS Attacks
 app.use(xss());
+
+app.use(hpp());
 
 app.use(express.json({ limit: '50kb' }));
 app.use(express.static(`${__dirname}/public`));
