@@ -1,16 +1,35 @@
 const express = require('express');
 const morgan = require('morgan');
+const helmet = require('helmet');
+const rateLimiter = require('express-rate-limit');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+
 const errorHandler = require('./utils/errorHandler');
 const tourRoutes = require('./routes/tourRoutes');
 const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 
+app.use(helmet());
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-app.use(express.json());
+// Prevent Brute force with limit count of api per 15m
+const limiter = rateLimiter({
+  limit: 100,
+  windowMs: 15 * 60 * 1000,
+});
+app.use('/api', limiter);
+
+// Prevent SQL Injection
+app.use(mongoSanitize());
+
+// Prevent XSS Attacks
+app.use(xss());
+
+app.use(express.json({ limit: '50kb' }));
 app.use(express.static(`${__dirname}/public`));
 
 // Routes
