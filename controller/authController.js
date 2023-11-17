@@ -51,7 +51,7 @@ const login = catchAsync(async (req, res, next) => {
   if (!user || !(await user.isPasswordCorrect(password, user.password)))
     return errorHandler(401, 'Your email or password is Invalid');
 
-  const token = createToken(user._id);
+  const token = setTokenCookie(user._id, res);
 
   createResponse(res, 200, token);
 });
