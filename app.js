@@ -9,6 +9,7 @@ const hpp = require('hpp');
 const errorHandler = require('./utils/errorHandler');
 const tourRoutes = require('./routes/tourRoutes');
 const userRoutes = require('./routes/userRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.use(express.static(`${__dirname}/public`));
 // Routes
 app.use('/api/tours', tourRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 app.all('*', (req, res, next) => {
   errorHandler(404, "The requested url isn't exist");
