@@ -4,10 +4,12 @@ const helmet = require('helmet');
 const rateLimiter = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
+const hpp = require('hpp');
 
 const errorHandler = require('./utils/errorHandler');
 const tourRoutes = require('./routes/tourRoutes');
 const userRoutes = require('./routes/userRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 const app = express();
 
@@ -29,12 +31,15 @@ app.use(mongoSanitize());
 // Prevent XSS Attacks
 app.use(xss());
 
+app.use(hpp());
+
 app.use(express.json({ limit: '50kb' }));
 app.use(express.static(`${__dirname}/public`));
 
 // Routes
 app.use('/api/tours', tourRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 app.all('*', (req, res, next) => {
   errorHandler(404, "The requested url isn't exist");
