@@ -24,7 +24,10 @@ const getAllTour = catchAsync(async (req, res, next) => {
 
 // Get specific tour
 const getSpecificTour = catchAsync(async (req, res, next) => {
-  const specificTour = await Tour.findById(req.params.id);
+  const specificTour = await Tour.findById(req.params.id).populate({
+    path: 'reviews',
+    select: '-__v ',
+  });
   if (!specificTour) errorHandler(404, "Tour isn't find with this ID");
   createResponse(res, 200, specificTour);
 });

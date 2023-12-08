@@ -94,6 +94,12 @@ tourSchema.virtual('weekDuration').get(function () {
   return this.duration / 7;
 });
 
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id',
+});
+
 tourSchema.pre(/^find/, function (next) {
   this.find({ premium: { $ne: true } });
   next();
@@ -102,7 +108,7 @@ tourSchema.pre(/^find/, function (next) {
 tourSchema.pre(/^find/, function (next) {
   this.populate({
     path: 'guides',
-    select: '-__v',
+    select: '-__v -__tour',
   });
   next();
 });
