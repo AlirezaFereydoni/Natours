@@ -15,4 +15,14 @@ const createOne = (Model) =>
     createResponse(res, 201, newDoc);
   });
 
-module.exports = { createOne, deleteOne };
+const updateOne = (Model) =>
+  catchAsync(async (req, res, next) => {
+    const updatedDoc = await Model.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    if (!updatedDoc) errorHandler(404, "Document isn't find with this ID");
+    createResponse(res, 200, updatedDoc);
+  });
+
+module.exports = { createOne, updateOne, deleteOne };
