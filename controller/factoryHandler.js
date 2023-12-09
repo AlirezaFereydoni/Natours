@@ -9,4 +9,10 @@ const deleteOne = (Model) =>
     createResponse(res, 200, 'This document deleted successfully');
   });
 
-module.exports = { deleteOne };
+const createOne = (Model) =>
+  catchAsync(async (req, res, next) => {
+    const newDoc = await Model.create(req.body);
+    createResponse(res, 201, newDoc);
+  });
+
+module.exports = { createOne, deleteOne };
