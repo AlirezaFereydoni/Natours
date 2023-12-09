@@ -3,7 +3,7 @@ const { filters, sort } = require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
 const createResponse = require('../utils/createResponse');
 const errorHandler = require('../utils/errorHandler');
-const { deleteOne } = require('./factoryHandler');
+const { createOne, updateOne, deleteOne } = require('./factoryHandler');
 
 const getFiveCheapMiddleware = (req, res, next) => {
   req.query.limit = '5';
@@ -34,20 +34,10 @@ const getSpecificTour = catchAsync(async (req, res, next) => {
 });
 
 // Create a new tour
-const createTour = catchAsync(async (req, res, next) => {
-  const newTour = await Tour.create(req.body);
-  createResponse(res, 201, newTour);
-});
+const createTour = createOne(Tour);
 
 // Update tour with PATCH
-const updateTour = catchAsync(async (req, res, next) => {
-  const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
-  if (!updatedTour) errorHandler(404, "Tour isn't find with this ID");
-  createResponse(res, 200, updatedTour);
-});
+const updateTour = updateOne(Tour);
 
 // Delete a tour
 const deleteTour = deleteOne(Tour);
