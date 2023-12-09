@@ -3,6 +3,7 @@ const { filters, sort } = require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
 const createResponse = require('../utils/createResponse');
 const errorHandler = require('../utils/errorHandler');
+const { deleteOne } = require('./factoryHandler');
 
 const getFiveCheapMiddleware = (req, res, next) => {
   req.query.limit = '5';
@@ -49,11 +50,7 @@ const updateTour = catchAsync(async (req, res, next) => {
 });
 
 // Delete a tour
-const deleteTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findByIdAndDelete(req.params.id);
-  if (!tour) errorHandler(404, "Tour isn't find with this ID");
-  createResponse(res, 200, 'deleted successfully');
-});
+const deleteTour = deleteOne(Tour);
 
 const getTourStats = catchAsync(async (req, res, next) => {
   const stats = await Tour.aggregate([
