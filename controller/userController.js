@@ -1,13 +1,7 @@
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const createResponse = require('../utils/createResponse');
-const { updateOne, deleteOne } = require('./factoryHandler');
-
-const getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.find();
-
-  createResponse(res, 200, users);
-});
+const { updateOne, deleteOne, getAll } = require('./factoryHandler');
 
 const updateMe = catchAsync(async (req, res, next) => {
   const { email, name } = req.body;
@@ -28,6 +22,7 @@ const deActiveMe = catchAsync(async (req, res, next) => {
   createResponse(res, 200, 'Successfully deactivated');
 });
 
+const getAllUsers = getAll(User);
 const updateUser = updateOne(User);
 const deleteUser = deleteOne(User);
 

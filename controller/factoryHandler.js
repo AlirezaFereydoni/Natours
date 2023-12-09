@@ -18,6 +18,7 @@ const getOne = (Model, populateOptions) =>
     if (!specificDoc) errorHandler(404, "Document isn't find with this ID");
     createResponse(res, 200, specificDoc);
   });
+
 const getAll = (Model) =>
   catchAsync(async (req, res, next) => {
     const features = filters(req.query, Model);
