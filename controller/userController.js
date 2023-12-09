@@ -1,7 +1,7 @@
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const createResponse = require('../utils/createResponse');
-const { updateOne, deleteOne, getAll } = require('./factoryHandler');
+const { updateOne, deleteOne, getAll, getOne } = require('./factoryHandler');
 
 const updateMe = catchAsync(async (req, res, next) => {
   const { email, name } = req.body;
@@ -22,6 +22,13 @@ const deActiveMe = catchAsync(async (req, res, next) => {
   createResponse(res, 200, 'Successfully deactivated');
 });
 
+const setIdToParams = (req, res, next) => {
+  req.params.id = req.user.id;
+
+  next();
+};
+
+const getUser = getOne(User);
 const getAllUsers = getAll(User);
 const updateUser = updateOne(User);
 const deleteUser = deleteOne(User);
@@ -32,4 +39,6 @@ module.exports = {
   deActiveMe,
   updateUser,
   deleteUser,
+  setIdToParams,
+  getUser,
 };

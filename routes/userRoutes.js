@@ -3,6 +3,10 @@ const {
   getAllUsers,
   updateMe,
   deActiveMe,
+  getUser,
+  updateUser,
+  deleteUser,
+  setIdToParams,
 } = require('../controller/userController');
 const authController = require('../controller/authController');
 
@@ -23,6 +27,10 @@ router.patch(
 router.patch('/updateMe', authController.protected, updateMe);
 router.patch('/deActiveMe', authController.protected, deActiveMe);
 router.route('/').get(getAllUsers);
-// router.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
+router
+  .route('/me')
+  .get(setIdToParams, getUser)
+  .patch(setIdToParams, updateUser)
+  .delete(setIdToParams, deleteUser);
 
 module.exports = router;
