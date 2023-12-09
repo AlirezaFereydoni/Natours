@@ -2,7 +2,7 @@ const Review = require('../models/reviewModel');
 const catchAsync = require('../utils/catchAsync');
 const createResponse = require('../utils/createResponse');
 const { filters, sort } = require('../utils/apiFeatures');
-const { deleteOne } = require('./factoryHandler');
+const { deleteOne, updateOne } = require('./factoryHandler');
 
 const createReview = catchAsync(async (req, res, next) => {
   if (!req.body.tour) req.body.tour = req.params.tourId;
@@ -22,9 +22,11 @@ const getAllReview = catchAsync(async (req, res, next) => {
 });
 
 const deleteReview = deleteOne(Review);
+const updateReview = updateOne(Review);
 
 module.exports = {
   createReview,
   getAllReview,
   deleteReview,
+  updateReview,
 };
