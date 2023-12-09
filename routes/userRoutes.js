@@ -3,6 +3,10 @@ const {
   getAllUsers,
   updateMe,
   deActiveMe,
+  getUser,
+  setIdToParams,
+  updateUser,
+  deleteUser,
 } = require('../controller/userController');
 const authController = require('../controller/authController');
 
@@ -13,16 +17,17 @@ router.post('/signup', authController.signup);
 router.post('/login', authController.login);
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:resetToken', authController.resetPassword);
-router.patch(
-  '/changePassword',
-  authController.protected,
-  authController.changePassword,
-);
+
+router.use(authController.protected);
 
 // Users
-router.patch('/updateMe', authController.protected, updateMe);
-router.patch('/deActiveMe', authController.protected, deActiveMe);
-router.route('/').get(getAllUsers);
-// router.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
+router.patch('/changePassword', authController.changePassword);
+router.patch('/updateMe', updateMe);
+router.patch('/deActiveMe', deActiveMe);
+router.get('/me', setIdToParams, getUser);
+
+router.use(authController.restrictTo('admin'));
+
+router.route('/').get(getAllUsers).patch(updateUser).delete(deleteUser);
 
 module.exports = router;

@@ -1,9 +1,15 @@
 const Tour = require('../models/tourModel');
-const { filters, sort } = require('../utils/apiFeatures');
+
 const catchAsync = require('../utils/catchAsync');
 const createResponse = require('../utils/createResponse');
-const errorHandler = require('../utils/errorHandler');
-const { createOne, updateOne, deleteOne } = require('./factoryHandler');
+
+const {
+  createOne,
+  updateOne,
+  deleteOne,
+  getAll,
+  getOne,
+} = require('./factoryHandler');
 
 const getFiveCheapMiddleware = (req, res, next) => {
   req.query.limit = '5';
@@ -14,24 +20,10 @@ const getFiveCheapMiddleware = (req, res, next) => {
 };
 
 // Get all tours
-const getAllTour = catchAsync(async (req, res, next) => {
-  const features = filters(req.query, Tour);
-  const sorted = sort(req.query, features);
-
-  const tours = await sorted;
-
-  createResponse(res, 200, tours);
-});
+const getAllTour = getAll(Tour);
 
 // Get specific tour
-const getSpecificTour = catchAsync(async (req, res, next) => {
-  const specificTour = await Tour.findById(req.params.id).populate({
-    path: 'reviews',
-    select: '-__v ',
-  });
-  if (!specificTour) errorHandler(404, "Tour isn't find with this ID");
-  createResponse(res, 200, specificTour);
-});
+const getSpecificTour = getOne(Tour, { path: 'reviews' });
 
 // Create a new tour
 const createTour = createOne(Tour);

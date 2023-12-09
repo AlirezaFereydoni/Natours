@@ -12,7 +12,7 @@ router
     reviewController.setTourAndUserIds,
     reviewController.createReview,
   )
-  .get(reviewController.getAllReview);
+  .get(reviewController.setTourId, reviewController.getAllReview);
 
 router
   .route('/:id')
