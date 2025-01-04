@@ -27,15 +27,15 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     trim: true,
-    min: [8, 'your password should at least 8 characters'],
-    max: [64, 'your password should at least 64 characters'],
+    min: [8, 'your password should be at least 8 characters'],
+    max: [64, 'your password should be at most 64 characters'],
     select: false,
   },
   passwordConfirm: {
     type: String,
     trim: true,
-    min: [8, 'your password should at least 8 characters'],
-    max: [64, 'your password should at least 64 characters'],
+    min: [8, 'your password should be at least 8 characters'],
+    max: [64, 'your password should be at most 64 characters'],
     validate: {
       validator: function (el) {
         return this.password === el;
